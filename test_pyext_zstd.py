@@ -4,6 +4,7 @@
 
 import pyext_zstd
 
+
 def test_pyext_zstd():
     count = pyext_zstd.info("test")
     assert count >= 0
