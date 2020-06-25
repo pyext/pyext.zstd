@@ -15,6 +15,10 @@
 
 static const char ext_name[] = "pyext_zstd";
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 static PyObject *
 pyext_zstd_info(PyObject *self, PyObject *args)
 {
@@ -61,3 +65,7 @@ void initpyext_zstd(void)
     return module;
 #endif
 }
+
+#ifdef __cplusplus
+}
+#endif
