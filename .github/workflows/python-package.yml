@@ -20,13 +20,19 @@ jobs:
           - ubuntu-18.04
           - macos-10.15
         python_version: ['2.7', '3.5', '3.6', '3.7', '3.8']
-
+        architecture: ['x86', 'x64']
+        exclude:
+          - platform: macos-10.15
+            architecture: 'x86'
+          - platform: ubuntu-18.04
+            architecture: 'x86'
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python_version }}
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python_version }}
+        architecture: ${{ matrix.architecture }}
     - name: Install Visual C++ for Python 2.7
       if: matrix.platform == 'windows-2019' && matrix.python_version == '2.7'
       run: |
