@@ -3,8 +3,10 @@
 # vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4
 
 from distutils.core import setup, Extension
+import os
 
 pyext_zstd_module = Extension('pyext_zstd', sources=['pyext_zstd.cpp'])
+cwd = os.path.abspath(os.path.dirname(__file__))
 
 setup(name='pyext_zstd',
       version='1.0',
@@ -13,7 +15,7 @@ setup(name='pyext_zstd',
       url='https://github.com/pyext/pyext_zstd',
       description='pyext_zstd is zstd compression/decompression binding',
       keywords='compression, decompression, archive',
-      long_description=open("./README.md", 'r').read(),
+      long_description=open(os.path.join(cwd, "README.md"), 'r').read(),
       long_description_content_type='text/markdown',
       classifiers=['Development Status :: 1 - Planning',
                    'Intended Audience :: Developers',
@@ -34,4 +36,6 @@ setup(name='pyext_zstd',
                    'Operating System :: MacOS :: MacOS X',
                    'Operating System :: POSIX :: Linux'],
       license='MIT',
-      ext_modules=[pyext_zstd_module])
+      ext_modules=[pyext_zstd_module],
+      include_package_data=True,
+      package_data={"": ["README.md"]})
