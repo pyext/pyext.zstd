@@ -13,49 +13,49 @@
 
 #include <cstdio>
 
-static const char ext_name[] = "pyext_zstd";
+static const char ext_name[] = "_zstd";
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 static PyObject *
-pyext_zstd_info(PyObject *self, PyObject *args)
+zstd_info(PyObject *self, PyObject *args)
 {
     const char *command;
     int sts;
 
     if (!PyArg_ParseTuple(args, "s", &command))
         return NULL;
-    sts = printf("pyext_zstd: %s\n", command);
+    sts = printf("zstd: %s\n", command);
     return PyLong_FromLong(sts);
 }
 
-static PyMethodDef pyext_zstd_methods[] = {
-    {"info",  pyext_zstd_info, METH_VARARGS, "print information"},
+static PyMethodDef zstd_methods[] = {
+    {"info",  zstd_info, METH_VARARGS, "print information"},
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 
 #ifdef IS_PY3K
 
-static struct PyModuleDef pyext_zstd_module = {
+static struct PyModuleDef zstd_module = {
     PyModuleDef_HEAD_INIT,
     ext_name,   /* name of module */
-    /*pyext_zstd_doc*/ NULL, /* module documentation, may be NULL */
+    /*zstd_doc*/ NULL, /* module documentation, may be NULL */
     -1,             /* size of per-interpreter state of the module,
                     or -1 if the module keeps state in global variables. */
-    pyext_zstd_methods
+    zstd_methods
 };
 
-PyMODINIT_FUNC PyInit_pyext_zstd(void)
+PyMODINIT_FUNC PyInit__zstd(void)
 #else
-void initpyext_zstd(void)
+void init_zstd(void)
 #endif
 {
 #ifdef IS_PY3K
-    PyObject *module = PyModule_Create(&pyext_zstd_module);
+    PyObject *module = PyModule_Create(&zstd_module);
 #else
-    PyObject *module = Py_InitModule(ext_name, pyext_zstd_methods);
+    PyObject *module = Py_InitModule(ext_name, zstd_methods);
 #endif
 
     if (module == NULL)
