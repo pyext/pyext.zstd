@@ -1,0 +1,26 @@
+cmake_minimum_required(VERSION 2.8)
+
+project(_zstd)
+
+find_package(PythonLibs REQUIRED)
+
+file(GLOB SOURCES *.cpp)
+
+message(STATUS "PYTHON_INCLUDE_DIRS ${PYTHON_INCLUDE_DIRS}")
+message(STATUS "PYTHON_INCLUDE_PATH ${PYTHON_INCLUDE_PATH}")
+message(STATUS "PYTHON_LIBRARIES ${PYTHON_LIBRARIES}")
+
+get_filename_component(PYTHON_LIBRARY_PATH ${PYTHON_LIBRARIES} DIRECTORY)
+link_directories(${PYTHON_LIBRARY_PATH})
+
+add_library(${PROJECT_NAME} SHARED ${SOURCES})
+
+message(STATUS "PYTHON_LIBRARY_PATH ${PYTHON_LIBRARY_PATH}")
+
+target_include_directories(${PROJECT_NAME} PRIVATE ${PYTHON_INCLUDE_DIRS})
+target_link_libraries(${PROJECT_NAME} PRIVATE ${PYTHON_LIBRARIES})
+
+set_target_properties(${PROJECT_NAME} PROPERTIES
+    PREFIX ""
+    OUTPUT_NAME "${OUTPUT_NAME}"
+    SUFFIX "${OUTPUT_SUFFIX}")
