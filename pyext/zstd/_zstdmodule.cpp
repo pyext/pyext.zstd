@@ -49,7 +49,7 @@ static struct PyModuleDef zstd_module = {
 
 PyMODINIT_FUNC PyInit__zstd(void)
 #else
-void init_zstd(void)
+PyMODINIT_FUNC init_zstd(void)
 #endif
 {
 #ifdef IS_PY3K
