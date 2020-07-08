@@ -14,6 +14,107 @@ import os
 import sys
 
 
+# FIXME : I want to be a python module!
+def _get_python_path(name):
+    import sysconfig
+    return sysconfig.get_path(name)
+
+
+def _get_python_sc_var(name):
+    import sysconfig
+    return sysconfig.get_config_var(name)
+
+
+def _get_python_du_var(name):
+    import distutils.sysconfig as du_sysconfig
+    return du_sysconfig.get_config_var(name)
+
+
+def _get_python_var(name):
+    return _get_python_sc_var(name) or _get_python_du_var(name)
+
+
+def _python_inc():
+    import sysconfig
+    return sysconfig.get_python_inc()
+
+
+def _python_abiflags():
+    import sys
+    return getattr(sys, 'abiflags', '')
+
+
+def _python_version():
+    import sys
+    return '%s.%s' % (sys.version_info[0], sys.version_info[1])
+
+
+def _python_include():
+    include = _get_python_path('include')
+    plat_include = _get_python_path('platinclude')
+    include_py = _get_python_var('INCLUDEPY')
+    include_dir = _get_python_var('INCLUDEDIR')
+    python_inc = _python_inc
+
+    candidates = [include,
+                  plat_include,
+                  include_py,
+                  include_dir,
+                  python_inc]
+    for candidate in candidates:
+        if candidate:
+            python_h = os.path.join(candidate, 'Python.h')
+            print('checking %s' % python_h)
+            if os.path.isfile(python_h):
+                print('found Python.h: %s' % python_h, candidate)
+                return candidate.replace('\\', '/')
+    raise Exception("couldn't locate Python.h - make sure you have installed python development files")
+
+
+def _python_libraries():
+    stdlib = _get_python_var("stdlib")
+    platstdlib = _get_python_var("platstdlib")
+    library = _get_python_var("LIBRARY")
+    ldlibrary = _get_python_var("LDLIBRARY")
+    libdir = _get_python_var("LIBDIR")
+    multiarch = _get_python_var("MULTIARCH")
+    masd = _get_python_var("multiarchsubdir")
+    with_dyld = _get_python_var("WITH_DYLD")
+    if libdir and multiarch and masd:
+        if masd.startswith(os.sep):
+            masd = masd[len(os.sep):]
+        libdir = os.path.join(libdir, masd)
+
+    if not libdir:
+        libdest = _get_python_var("LIBDEST")
+        libdir = os.path.join(os.path.dirname(libdest), "libs")
+
+    candidates = [stdlib, platstdlib, ldlibrary, library]
+    library_prefixes = [""] if os.name == 'nt' else ["", "lib"]
+    library_suffixes = [".lib"] if os.name == 'nt' else [".so", ".dll.a", ".a"]
+    if with_dyld:
+        library_suffixes.insert(0, ".dylib")
+
+    python_version = _python_version()
+    python_version_no_dot = python_version.replace(".", "")
+    versions = ["", python_version, python_version_no_dot]
+    abiflags = _python_abiflags()
+
+    for prefix in library_prefixes:
+        for suffix in library_suffixes:
+            for version in versions:
+                candidates.append("%spython%s%s%s" % (prefix, version, abiflags, suffix))
+
+    for candidate in candidates:
+        if candidate:
+            python_lib = os.path.join(libdir, candidate)
+            print('checking %s' % python_lib)
+            if os.path.isfile(python_lib):
+                print('found python library: %s' % python_lib)
+                return python_lib.replace('\\', '/')
+    raise Exception("couldn't locate python libraries - make sure you have installed python development files")
+
+
 class CMakeConanBuild(build_ext):
     def run(self):
         for extension in self.extensions:
@@ -40,6 +141,8 @@ class CMakeConanBuild(build_ext):
                 definitions["CMAKE_RUNTIME_OUTPUT_DIRECTORY_%s" % config.upper()] = ext_dir
                 definitions["OUTPUT_NAME"] = os.path.splitext(ext_name)[0]
                 definitions["OUTPUT_SUFFIX"] = os.path.splitext(ext_name)[1]
+                definitions["PYTHON_LIBRARY"] = _python_libraries()
+                definitions["PYTHON_INCLUDE_DIR"] = _python_include()
 
                 cmd = ["cmake", cmake_dir]
                 if os.name == "nt":
