@@ -2,6 +2,14 @@ cmake_minimum_required(VERSION 2.8)
 
 project(_zstd)
 
+include(conanbuildinfo.cmake)
+conan_basic_setup(NO_OUTPUT_DIRS)
+
+set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}")
+set(CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH};${CMAKE_CURRENT_SOURCE_DIR}")
+
+find_package(zstd REQUIRED)
+
 find_package(PythonLibs REQUIRED)
 
 file(GLOB SOURCES *.cpp)
@@ -18,7 +26,7 @@ add_library(${PROJECT_NAME} SHARED ${SOURCES})
 message(STATUS "PYTHON_LIBRARY_PATH ${PYTHON_LIBRARY_PATH}")
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${PYTHON_INCLUDE_DIRS})
-target_link_libraries(${PROJECT_NAME} PRIVATE ${PYTHON_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} PRIVATE ${PYTHON_LIBRARIES} zstd::zstd)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
     PREFIX ""

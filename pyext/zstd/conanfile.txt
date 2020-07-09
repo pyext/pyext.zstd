@@ -1,0 +1,9 @@
+[generators]
+cmake_find_package_multi
+cmake
+
+[requires]
+zstd/1.4.5
+
+[options]
+zstd:shared=False

@@ -13,6 +13,8 @@
 
 #include <cstdio>
 
+#include <zstd.h>
+
 static const char ext_name[] = "_zstd";
 
 #ifdef __cplusplus
@@ -28,6 +30,9 @@ zstd_info(PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "s", &command))
         return NULL;
     sts = printf("zstd: %s\n", command);
+
+    ZSTD_versionNumber();
+
     return PyLong_FromLong(sts);
 }
 
